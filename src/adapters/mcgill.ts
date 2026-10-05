@@ -3,6 +3,7 @@ import { AppError } from '../errors.js';
 import { normalizeCourseCode, normalizeTerm } from '../models.js';
 import type { Course, CourseSections, Term } from '../models.js';
 import { parseSections, parseSuggestions, parseTerms } from './parsing.js';
+import { VERSION } from '../version.js';
 
 export type McGillData = Pick<
   McGillAdapter,
@@ -45,7 +46,7 @@ export class McGillAdapter {
     try {
       const result = await this.fetcher(url, {
         signal: AbortSignal.timeout(this.timeoutMs),
-        headers: { Accept: '*/*', 'User-Agent': 'mcgill-vsb-mcp/0.2.0' },
+        headers: { Accept: '*/*', 'User-Agent': `mcgill-vsb-mcp/${VERSION}` },
       });
       if (!result.ok)
         throw new AppError(

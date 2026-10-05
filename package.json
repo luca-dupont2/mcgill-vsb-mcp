@@ -1,6 +1,6 @@
 {
   "name": "mcgill-vsb-mcp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "description": "Direct McGill timetable data and scheduling tools for AI assistants over MCP",
   "engines": {

@@ -55,15 +55,164 @@ describe('MCP SDK client/server integration', () => {
     expect(result.structuredContent).toBeDefined();
     return result.structuredContent! as Record<string, unknown>;
   }
-  it('advertises exactly four read-only tools', async () => {
+  it('advertises exactly six read-only tools', async () => {
     const result = await client.listTools();
     expect(result.tools.map((t) => t.name).sort()).toEqual([
       'check_conflicts',
       'generate_schedules',
       'get_sections',
+      'get_sections_batch',
+      'list_terms',
       'search_courses',
     ]);
     expect(result.tools.every((t) => t.annotations?.readOnlyHint)).toBe(true);
+  });
+  it('discovers published terms without a guessed term', async () => {
+    expect(await call('list_terms', {})).toMatchObject({
+      terms: [
+        { id: '202701', label: '2027 Winter', year: 2027, season: 'Winter' },
+      ],
+      source: { name: 'McGill VSB' },
+    });
+  });
+  it('returns ordered batch successes and errors, deduplicating normalized codes', async () => {
+    const result = await call('get_sections_batch', {
+      course_codes: ['ecse206', 'ECSE 999', 'ECSE-206', 'MATH 263', 'bad-code'],
+      term: 'Winter 2027',
+    });
+    expect(result).toMatchObject({
+      term: '2027 Winter',
+      successful: 2,
+      failed: 2,
+      all_succeeded: false,
+      results: [
+        {
+          course_code: 'ECSE 206',
+          ok: true,
+          data: { sections: [{ course_code: 'ECSE 206' }, {}] },
+        },
+        {
+          course_code: 'ECSE 999',
+          ok: false,
+          error: { error: 'course_not_found' },
+        },
+        { course_code: 'MATH 263', ok: true },
+        {
+          course_code: 'bad-code',
+          ok: false,
+          error: { error: 'invalid_course_code' },
+        },
+      ],
+    });
+  });
+  it('returns all-failed batches explicitly and rejects unpublished terms once', async () => {
+    expect(
+      await call('get_sections_batch', {
+        course_codes: ['ECSE 999'],
+        term: '2027 Winter',
+      }),
+    ).toMatchObject({ successful: 0, failed: 1, all_succeeded: false });
+    expect(
+      await client.callTool({
+        name: 'get_sections_batch',
+        arguments: {
+          course_codes: ['ECSE 206'],
+          term: '2030 Fall',
+        },
+      }),
+    ).toMatchObject({
+      isError: true,
+      structuredContent: {
+        error: 'term_unavailable',
+        available_terms: ['2027 Winter'],
+      },
+    });
+  });
+  it('compacts section payloads while retaining dates, bundles, warnings and reusable ids', async () => {
+    const full = await call('get_sections', {
+      course_code: 'ECSE 206',
+      term: '2027 Winter',
+    });
+    const compact = await call('get_sections', {
+      course_code: 'ECSE 206',
+      term: '2027 Winter',
+      view: 'compact',
+    });
+    expect(JSON.stringify(compact).length).toBeLessThan(
+      JSON.stringify(full).length,
+    );
+    expect(compact.bundles).toEqual(full.bundles);
+    expect(compact.warnings).toEqual(full.warnings);
+    const sections = compact.sections as Record<string, unknown>[];
+    expect(sections[0]).not.toHaveProperty('course_code');
+    expect(sections[0]).not.toHaveProperty('term');
+    expect(sections[0]).toMatchObject({
+      complete: true,
+      meetings: [{ start: '10:05', start_date: '2027-01-05' }, {}],
+    });
+    expect(
+      (sections[0]!.meetings as Record<string, unknown>[])[0],
+    ).not.toHaveProperty('start_minutes');
+    expect(
+      await call('check_conflicts', { section_ids: sections.map((s) => s.id) }),
+    ).toMatchObject({ conflict: false, complete: true });
+    const batch = await call('get_sections_batch', {
+      course_codes: ['ECSE 206'],
+      term: '2027 Winter',
+      view: 'compact',
+    });
+    expect((batch.results as Record<string, unknown>[])[0]!.data).toEqual(
+      compact,
+    );
+  });
+  it('keeps missing-meeting uncertainty in compact sections and schedules', async () => {
+    const compact = await call('get_sections', {
+      course_code: 'ECSE 201',
+      term: '2027 Winter',
+      view: 'compact',
+    });
+    expect(compact).toMatchObject({
+      sections: [{ complete: false, meetings: [] }],
+    });
+    const full = await call('generate_schedules', {
+      course_codes: ['ECSE 201'],
+      term: '2027 Winter',
+    });
+    const small = await call('generate_schedules', {
+      course_codes: ['ECSE 201'],
+      term: '2027 Winter',
+      view: 'compact',
+    });
+    expect(small).toMatchObject({
+      verification_complete: false,
+      valid_schedules_found: 0,
+      provisional_schedules_found: 1,
+      schedules: [{ complete: false }],
+    });
+    expect(small.warnings).toEqual(full.warnings);
+  });
+  it('compacts schedules without changing ordering, scores, counts or completeness', async () => {
+    const args = {
+      course_codes: ['ECSE 205', 'MATH 263'],
+      term: '2027 Winter',
+      max_results: 3,
+    };
+    const full = await call('generate_schedules', args);
+    const small = await call('generate_schedules', {
+      ...args,
+      view: 'compact',
+    });
+    const schedules = (full.schedules as Record<string, unknown>[]).map(
+      ({ meetings, attendance, ...rest }) => {
+        void meetings;
+        void attendance;
+        return rest;
+      },
+    );
+    expect(small).toEqual({ ...full, view: 'compact', schedules });
+    expect(JSON.stringify(small).length).toBeLessThan(
+      JSON.stringify(full).length,
+    );
   });
   it('searches and retrieves normalized real fixture sections over MCP', async () => {
     expect(
@@ -212,6 +361,16 @@ describe('MCP SDK client/server integration', () => {
   it('validates boundary types, meeting intervals, and mutually exclusive inputs', async () => {
     for (const [name, args] of [
       ['search_courses', { query: '', term: '2027 Winter' }],
+      ['list_terms', { term: '2027 Winter' }],
+      ['get_sections_batch', { course_codes: [], term: '2027 Winter' }],
+      [
+        'get_sections_batch',
+        { course_codes: Array(13).fill('ECSE 206'), term: '2027 Winter' },
+      ],
+      [
+        'get_sections',
+        { course_code: 'ECSE 206', term: '2027 Winter', view: 'brief' },
+      ],
       ['generate_schedules', { course_codes: [], term: '2027 Winter' }],
       ['check_conflicts', {}],
       ['check_conflicts', { section_ids: ['id'], sections: [] }],

@@ -64,10 +64,19 @@ try {
     }),
   );
   const tools = await client.listTools();
+  const manifest = JSON.parse(
+    await readFile(
+      join(temporary, 'node_modules/mcgill-vsb-mcp/package.json'),
+      'utf8',
+    ),
+  ) as { version: string };
+  assert.equal(client.getServerVersion()?.version, manifest.version);
   assert.deepEqual(tools.tools.map((tool) => tool.name).sort(), [
     'check_conflicts',
     'generate_schedules',
     'get_sections',
+    'get_sections_batch',
+    'list_terms',
     'search_courses',
   ]);
   const result = await client.callTool({
@@ -101,7 +110,7 @@ try {
   assert.equal(output.conflict, false);
   assert.equal(output.complete, true);
   console.log(
-    `Verified ${artifact.filename}: allowed files, clean production installation, npm executable, four tools, and conflict calculation.`,
+    `Verified ${artifact.filename}: allowed files, clean production installation, npm executable, matching server version, six tools, and conflict calculation.`,
   );
 } finally {
   await client.close();

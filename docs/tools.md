@@ -2,6 +2,38 @@
 
 Successful tools return `structuredContent` and an identical compact JSON text representation. Domain and upstream errors set `isError: true` and return an actionable error code. The official SDK rejects malformed boundary arguments before the tool handler runs.
 
+## `list_terms`
+
+```json
+{}
+```
+
+Returns the terms currently published by VSB, each with `id`, `label`, `year`, and `season`, plus the source name and URL. Use a returned `label` with the other tools. The list uses the same process-local cache as course requests. It does not imply that every course is offered in every listed term.
+
+## Response views
+
+`get_sections`, `get_sections_batch`, and `generate_schedules` accept `view: "full"` or `view: "compact"`. The default is `full`, which preserves the existing response fields. Search results and conflict checks already return focused results and have no view option.
+
+Compact section results omit repeated `course_code` and `term` fields from each section, and omit numeric `start_minutes` and `end_minutes` from meetings. They retain readable times, date ranges, section IDs, status, instructors and locations when published, component bundles, linkage, warnings, and source provenance. Each section adds `complete`, which is false when timed meetings or complete date bounds are missing. Compact section objects cannot be passed directly to `check_conflicts`; pass their IDs, or request full section objects.
+
+Compact schedule results omit each schedule's `meetings` and detailed `attendance`. They retain section IDs, summary metrics, ranking scores and provenance, completeness, warnings, and every request-level field, including search coverage, verified and provisional counts, analysis dates, and source timestamps. Request the full view to inspect dated attendance exceptions. Compact responses reduce output size, not upstream requests or schedule calculations.
+
+## `get_sections_batch`
+
+```json
+{
+  "course_codes": ["ECSE 206", "MATH 263"],
+  "term": "2027 Winter",
+  "view": "compact"
+}
+```
+
+Retrieves sections for 1–12 input course codes in one term. Requests run sequentially against VSB. Normalized duplicate codes are retrieved once, with their first occurrence determining result order.
+
+The response contains canonical `term`, ordered `results`, `successful`, `failed`, and `all_succeeded`. Each successful entry has `course_code`, `ok: true`, and `data` containing the same response as `get_sections`. Each failed entry has `course_code`, `ok: false`, and an `error` object with the actionable error code and message. Invalid course syntax and upstream failures are recorded per course without discarding successful results.
+
+A batch with per-course failures, including an entirely failed batch, returns a normal MCP result with `all_succeeded: false`. Inspect every entry's `ok` flag. Invalid request structure, an invalid or unpublished common term, or a failure to discover terms fails the whole tool call with `isError: true`. Malformed course codes retain the input string in their error entries.
+
 ## `search_courses`
 
 ```json

@@ -10,12 +10,16 @@ No McGill login, API key, browser session, or project database is required.
 
 | Tool                 | Purpose                                                                                               |
 | -------------------- | ----------------------------------------------------------------------------------------------------- |
+| `list_terms`         | Discover terms currently published by VSB                                                             |
 | `search_courses`     | Search a published term by course code, subject, title, or keywords                                   |
 | `get_sections`       | Fetch sections, timed meetings, dates, and permitted lecture/lab/tutorial combinations                |
+| `get_sections_batch` | Fetch up to 12 courses in one call, with a separate result or error for each course                   |
 | `check_conflicts`    | Check current section IDs or previously fetched section objects                                       |
 | `generate_schedules` | Explore combinations with time/day restrictions, busy intervals, section pins, and ranking objectives |
 
 Agents can pass fetched section objects to `check_conflicts` without another network request. Schedule calculations run locally using the published course data.
+
+Section lookups and schedule generation accept `view: "compact"` to reduce response size while retaining source details, warnings, and verification flags. The default `full` view preserves complete section objects and dated attendance details. Compact section IDs work with `check_conflicts`; full objects are required for checks without a network request.
 
 ## Install and connect
 
@@ -31,7 +35,7 @@ For any harness that supports local stdio MCP servers, configure these launch se
 | --------- | ---------------------------- |
 | Transport | `stdio`                      |
 | Command   | `npx`                        |
-| Arguments | `-y`, `mcgill-vsb-mcp@0.2.0` |
+| Arguments | `-y`, `mcgill-vsb-mcp@0.3.0` |
 
 Configuration formats may differ between harnesses.
 
@@ -41,7 +45,7 @@ Configuration formats may differ between harnesses.
 Run these commands in your terminal:
 
 ```bash
-codex mcp add mcgill-vsb-mcp -- npx -y mcgill-vsb-mcp@0.2.0
+codex mcp add mcgill-vsb-mcp -- npx -y mcgill-vsb-mcp@0.3.0
 codex mcp list
 ```
 
@@ -50,7 +54,7 @@ Start a new Codex session and run `/mcp` to check the active connection. Alterna
 ```toml
 [mcp_servers.mcgill-vsb-mcp]
 command = "npx"
-args = ["-y", "mcgill-vsb-mcp@0.2.0"]
+args = ["-y", "mcgill-vsb-mcp@0.3.0"]
 ```
 
 See the [Codex MCP guide](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
@@ -63,7 +67,7 @@ See the [Codex MCP guide](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)
 Run this command to make the server available across your projects:
 
 ```bash
-claude mcp add --transport stdio --scope user mcgill-vsb-mcp -- npx -y mcgill-vsb-mcp@0.2.0
+claude mcp add --transport stdio --scope user mcgill-vsb-mcp -- npx -y mcgill-vsb-mcp@0.3.0
 ```
 
 Start a new Claude Code session and run `/mcp` to check the connection. See [Claude Code's MCP guide](https://code.claude.com/docs/en/mcp).
@@ -72,8 +76,8 @@ Start a new Claude Code session and run `/mcp` to check the connection. See [Cla
 
 ### Desktop and editor clients
 
-[![Install in Cursor](https://img.shields.io/badge/Install_in-Cursor-black)](https://cursor.com/link/mcp/install?name=mcgill-vsb-mcp&config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIm1jZ2lsbC12c2ItbWNwQDAuMi4wIl19)
-[![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-007ACC)](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522mcgill-vsb-mcp%2522%252C%2522type%2522%253A%2522stdio%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522-y%2522%252C%2522mcgill-vsb-mcp%25400.2.0%2522%255D%257D)
+[![Install in Cursor](https://img.shields.io/badge/Install_in-Cursor-black)](https://cursor.com/link/mcp/install?name=mcgill-vsb-mcp&config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIm1jZ2lsbC12c2ItbWNwQDAuMy4wIl19)
+[![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-007ACC)](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522mcgill-vsb-mcp%2522%252C%2522type%2522%253A%2522stdio%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522-y%2522%252C%2522mcgill-vsb-mcp%25400.3.0%2522%255D%257D)
 
 These buttons add the configuration to the installed client. Review and approve it, then enable the server's tools. Node.js must already be installed. The first connection downloads the package and can take longer than later connections.
 
@@ -90,7 +94,7 @@ Merge this entry into your client's configuration, preserving existing servers:
     "mcgill-vsb-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "mcgill-vsb-mcp@0.2.0"]
+      "args": ["-y", "mcgill-vsb-mcp@0.3.0"]
     }
   }
 }
@@ -98,7 +102,7 @@ Merge this entry into your client's configuration, preserving existing servers:
 
 Enable the server in Cursor's MCP settings and use Agent mode. Fully quit and reopen Claude Desktop after saving its configuration.
 
-If a Windows client cannot launch `npx`, use `"command": "cmd"` with `"args": ["/c", "npx", "-y", "mcgill-vsb-mcp@0.2.0"]`.
+If a Windows client cannot launch `npx`, use `"command": "cmd"` with `"args": ["/c", "npx", "-y", "mcgill-vsb-mcp@0.3.0"]`.
 
 See [Cursor's MCP guide](https://cursor.com/docs/mcp) and the [local MCP server setup guide](https://modelcontextprotocol.io/docs/develop/connect-local-servers).
 
@@ -110,7 +114,7 @@ See [Cursor's MCP guide](https://cursor.com/docs/mcp) and the [local MCP server 
 Use the install button above, or run this command with the [VS Code CLI](https://code.visualstudio.com/docs/configure/command-line) on your PATH:
 
 ```bash
-code --add-mcp '{"name":"mcgill-vsb-mcp","type":"stdio","command":"npx","args":["-y","mcgill-vsb-mcp@0.2.0"]}'
+code --add-mcp '{"name":"mcgill-vsb-mcp","type":"stdio","command":"npx","args":["-y","mcgill-vsb-mcp@0.3.0"]}'
 ```
 
 The command uses bash or zsh. For manual configuration, run **MCP: Open User Configuration** from the Command Palette. Add the following entry to `servers`, preserving existing entries. VS Code uses `servers`, rather than `mcpServers`:
@@ -121,7 +125,7 @@ The command uses bash or zsh. For manual configuration, run **MCP: Open User Con
     "mcgill-vsb-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "mcgill-vsb-mcp@0.2.0"]
+      "args": ["-y", "mcgill-vsb-mcp@0.3.0"]
     }
   }
 }
@@ -147,13 +151,13 @@ Use `"command": "node"` and `"args": ["/absolute/path/to/mcgill-vsb-mcp/dist/ser
 
 ### Check the connection
 
-Confirm that your client lists the four tools above. The client launches the server when needed. Running `npx -y mcgill-vsb-mcp@0.2.0` in a separate terminal waits for MCP messages on stdin; it does not connect an agent by itself.
+Confirm that your client lists the six tools above. The client launches the server when needed. Running `npx -y mcgill-vsb-mcp@0.3.0` in a separate terminal waits for MCP messages on stdin; it does not connect an agent by itself.
 
 Try this prompt:
 
 > Use McGill VSB MCP to search for ECSE courses in Winter 2027. Show three results with their course codes and titles.
 
-Only terms currently published by VSB are available. With a source checkout, `pnpm query terms` lists them.
+Call `list_terms` to discover currently published terms. With a source checkout, `pnpm query terms` also lists them.
 
 ### Troubleshooting
 
@@ -164,7 +168,7 @@ Only terms currently published by VSB are available. With a source checkout, `pn
 
 You can give your agent this instruction:
 
-> Use the McGill VSB MCP tools for course offerings, section times, conflicts, and schedule combinations. Resolve relative terms such as "next winter" to an explicit year and season before querying. Report incomplete or provisional results when the tools indicate missing data.
+> Use the McGill VSB MCP tools for course offerings, section times, conflicts, and schedule combinations. Discover published terms with list_terms. Use get_sections_batch for multiple courses and compact views when detailed attendance or reusable full section objects are unnecessary. Resolve relative terms such as "next winter" to an explicit year and season before querying. Report incomplete or provisional results when the tools indicate missing data.
 
 Only terms currently published by VSB are available. Accepted forms include `2027 Winter`, `Winter 2027`, and `2027-winter`.
 
@@ -175,7 +179,8 @@ With a [source checkout](#install-and-connect), the CLI uses the same tools and 
 ```bash
 pnpm query terms
 pnpm query search "ECSE" --term "2027 Winter" --limit 3
-pnpm query sections "ECSE 206" --term "2027 Winter"
+pnpm query sections "ECSE 206" --term "2027 Winter" --view compact
+pnpm query sections-batch "ECSE 206" "MATH 263" --term "2027 Winter" --view compact
 pnpm query schedules "ECSE 205" "MATH 263" --term "2027 Winter" --limit 5
 ```
 
@@ -218,7 +223,7 @@ pnpm verify:package
 
 Tests run offline using synthetic cases and a small set of anonymous public timetable [fixtures](tests/fixtures/README.md). CI runs these checks on pushes and pull requests. `pnpm verify:package` packs the release, installs it with production dependencies in a temporary directory, and checks the npm executable and MCP tools. It requires npm registry access. `pnpm dev` runs the source server during development.
 
-After building, run `pnpm verify:live` to exercise all four tools through the compiled stdio server against McGill. Run `pnpm verify:ranking` to check all six VSB ranking modes, conflict checks, pins, and exclusions. These scripts use public example courses; live assertions can fail if offerings change or McGill is unreachable. `MCGILL_SMOKE_TERM` overrides their default term. Save local reports under `.local/`, which Git ignores.
+After building, run `pnpm verify:live` to exercise all six tools through the compiled stdio server against McGill. Run `pnpm verify:ranking` to check all six VSB ranking modes, conflict checks, pins, and exclusions. These scripts use public example courses; live assertions can fail if offerings change or McGill is unreachable. `MCGILL_SMOKE_TERM` overrides their default term. Save local reports under `.local/`, which Git ignores.
 
 ## License and attribution
 

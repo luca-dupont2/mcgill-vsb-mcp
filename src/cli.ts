@@ -5,6 +5,10 @@ import { AppError, errorResult } from './errors.js';
 import { searchCourses, searchSchema } from './tools/search_courses.js';
 import { getSections, sectionsSchema } from './tools/get_sections.js';
 import {
+  getSectionsBatch,
+  batchSectionsSchema,
+} from './tools/get_sections_batch.js';
+import {
   checkSelectedConflicts,
   conflictsSchema,
 } from './tools/check_conflicts.js';
@@ -30,6 +34,7 @@ try {
       limit: { type: 'string' },
       ranking: { type: 'string' },
       constraints: { type: 'string' },
+      view: { type: 'string' },
     },
   });
   const [command, ...arguments_] = positionals;
@@ -37,12 +42,22 @@ try {
   let result: unknown;
   if (command === 'terms')
     result = { terms: (await data.listTerms()).map((t) => t.label) };
+  else if (command === 'sections-batch')
+    result = await getSectionsBatch(
+      data,
+      batchSectionsSchema.parse({
+        course_codes: arguments_,
+        term: values.term,
+        ...(values.view ? { view: values.view } : {}),
+      }),
+    );
   else if (command === 'sections')
     result = await getSections(
       data,
       sectionsSchema.parse({
         course_code: arguments_.join(' '),
         term: values.term,
+        ...(values.view ? { view: values.view } : {}),
       }),
     );
   else if (command === 'search')
@@ -67,6 +82,7 @@ try {
       data,
       generateSchema.parse({
         course_codes: arguments_,
+        ...(values.view ? { view: values.view } : {}),
         ...(values.ranking
           ? { ranking: jsonOption(values.ranking, '--ranking') }
           : {}),
@@ -80,7 +96,7 @@ try {
   else
     throw new AppError(
       'invalid_command',
-      'Use terms, search <query>, sections <course>, conflicts <section ids>, or schedules <quoted course codes>. Supply --term for search, sections, and schedules.',
+      'Use terms, search <query>, sections <course>, sections-batch <quoted course codes>, conflicts <section ids>, or schedules <quoted course codes>. Supply --term for search, sections, sections-batch, and schedules. Sections and schedules accept --view full or compact.',
     );
   console.log(JSON.stringify(result, null, 2));
 } catch (error) {

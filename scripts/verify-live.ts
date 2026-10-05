@@ -3,7 +3,6 @@ import { resolve } from 'node:path';
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { z } from 'zod';
-import { McGillAdapter } from '../src/adapters/mcgill.js';
 import { sectionInput } from '../src/tools/schemas.js';
 import { errorResult } from '../src/errors.js';
 
@@ -27,14 +26,18 @@ async function call(name: string, arguments_: Record<string, unknown>) {
   return z.record(z.string(), z.unknown()).parse(result.structuredContent);
 }
 try {
-  const terms = await new McGillAdapter().listTerms();
+  await client.connect(transport);
+  const discovery = await call('list_terms', {});
+  const terms = z
+    .array(z.object({ label: z.string(), season: z.string() }))
+    .parse(discovery.terms);
+  observations.push({ tool: 'list_terms', result: discovery });
   const term =
     process.env.MCGILL_SMOKE_TERM ??
     terms.filter((t) => t.season === 'Winter').at(-1)?.label ??
     terms.at(-1)!.label;
-  await client.connect(transport);
   const tools = await client.listTools();
-  assert.equal(tools.tools.length, 4);
+  assert.equal(tools.tools.length, 6);
   const search = await call('search_courses', {
     query: 'ECSE 206',
     term,
@@ -76,6 +79,36 @@ try {
     courses: keyword.courses,
   });
   const ecse = await call('get_sections', { course_code: 'ECSE 206', term });
+  const batch = await call('get_sections_batch', {
+    course_codes: ['ECSE 206', 'MATH 263', 'ECSE 999'],
+    term,
+    view: 'compact',
+  });
+  assert.equal(batch.successful, 2);
+  assert.equal(batch.failed, 1);
+  const batchResults = z
+    .array(
+      z.object({
+        ok: z.boolean(),
+        data: z.record(z.string(), z.unknown()).optional(),
+      }),
+    )
+    .parse(batch.results);
+  const compact = await call('get_sections', {
+    course_code: 'ECSE 206',
+    term,
+    view: 'compact',
+  });
+  assert.deepEqual(batchResults[0]!.data, compact);
+  assert(JSON.stringify(compact).length < JSON.stringify(ecse).length);
+  assert.deepEqual(compact.source, ecse.source);
+  observations.push({
+    tool: 'get_sections_batch',
+    successful: batch.successful,
+    failed: batch.failed,
+    full_bytes: JSON.stringify(ecse).length,
+    compact_bytes: JSON.stringify(compact).length,
+  });
   const phil = await call('get_sections', { course_code: 'PHIL 237', term });
   const ecseSections = z.array(sectionInput).parse(ecse.sections);
   const philSections = z.array(sectionInput).parse(phil.sections);
@@ -109,6 +142,25 @@ try {
       tie_breakers: ['minimize_gaps'],
     },
   });
+  const compactGenerated = await call('generate_schedules', {
+    course_codes: ['ECSE 205', 'MATH 263'],
+    term,
+    max_results: 5,
+    view: 'compact',
+    ranking: {
+      mode: 'avoid_days',
+      avoid_days: ['friday'],
+      tie_breakers: ['minimize_gaps'],
+    },
+  });
+  assert.equal(
+    compactGenerated.valid_schedules_found,
+    generated.valid_schedules_found,
+  );
+  assert.deepEqual(compactGenerated.sources, generated.sources);
+  assert(
+    JSON.stringify(compactGenerated).length < JSON.stringify(generated).length,
+  );
   const schedules = z
     .array(
       z.object({

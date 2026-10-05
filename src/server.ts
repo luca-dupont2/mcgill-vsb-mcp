@@ -8,6 +8,12 @@ import { McGillAdapter } from './adapters/mcgill.js';
 import type { McGillData } from './adapters/mcgill.js';
 import { adapterConfig } from './config.js';
 import { errorResult } from './errors.js';
+import { VERSION } from './version.js';
+import { listTerms, termsSchema } from './tools/list_terms.js';
+import {
+  getSectionsBatch,
+  batchSectionsSchema,
+} from './tools/get_sections_batch.js';
 import { searchCourses, searchSchema } from './tools/search_courses.js';
 import { getSections, sectionsSchema } from './tools/get_sections.js';
 import {
@@ -40,13 +46,33 @@ async function run(
 export function createServer(
   data: McGillData = new McGillAdapter(adapterConfig()),
 ) {
-  const server = new McpServer({ name: 'mcgill-vsb-mcp', version: '0.2.0' });
+  const server = new McpServer({ name: 'mcgill-vsb-mcp', version: VERSION });
   const annotations = {
     readOnlyHint: true,
     destructiveHint: false,
     idempotentHint: true,
     openWorldHint: true,
   };
+  server.registerTool(
+    'list_terms',
+    {
+      description:
+        'Discover terms currently published by McGill VSB. Use a returned label with course and schedule tools; do not assume an unpublished term is available.',
+      inputSchema: termsSchema,
+      annotations,
+    },
+    () => run(() => listTerms(data)),
+  );
+  server.registerTool(
+    'get_sections_batch',
+    {
+      description:
+        'Fetch sections for up to 12 courses in one published term, sequentially. Normalized duplicate codes are retrieved once. Results preserve input order and include per-course errors; inspect all_succeeded and each ok flag. Choose view=compact for readable meeting times or full for reusable section objects.',
+      inputSchema: batchSectionsSchema,
+      annotations,
+    },
+    (input) => run(() => getSectionsBatch(data, input)),
+  );
   server.registerTool(
     'search_courses',
     {
@@ -61,7 +87,7 @@ export function createServer(
     'get_sections',
     {
       description:
-        'Retrieve actual McGill sections, numeric times, date ranges, source component bundles and uncertainty. Reuse returned section ids or section objects with check_conflicts.',
+        'Retrieve McGill sections, date ranges, source component bundles and uncertainty. Default view=full returns reusable section objects; view=compact omits repeated course/term fields and numeric times. Compact section ids can be used with check_conflicts.',
       inputSchema: sectionsSchema,
       annotations,
     },
@@ -81,7 +107,7 @@ export function createServer(
     'generate_schedules',
     {
       description:
-        'Enumerate non-conflicting combinations using VSB component bundles. Hard constraints reject schedules; ranking.mode selects six VSB sorts or local objectives, with ordered tie_breakers. Attendance metrics use inclusive dates and report exceptional meetings. Verified and provisional counts, unknown scores, and bounded search are explicit. Legacy preferences remain soft.',
+        'Enumerate non-conflicting combinations using VSB component bundles. Hard constraints reject schedules; ranking.mode selects six VSB sorts or local objectives, with ordered tie_breakers. Attendance metrics use inclusive dates and report exceptional meetings. Verified and provisional counts, unknown scores, and bounded search are explicit. view=compact omits detailed meetings and attendance, retaining metrics, scores, source, and warnings. Legacy preferences remain soft.',
       inputSchema: generateSchema,
       annotations,
     },

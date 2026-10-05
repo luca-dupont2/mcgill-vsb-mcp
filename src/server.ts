@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+import { realpathSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { McpServer } from '@modelcontextprotocol/server';
 import type { CallToolResult } from '@modelcontextprotocol/server';
@@ -89,7 +91,7 @@ export function createServer(
 }
 if (
   process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
+  import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href
 ) {
   try {
     const server = createServer();

@@ -1,7 +1,6 @@
 {
   "name": "mcgill-vsb-mcp",
   "version": "0.2.0",
-  "private": true,
   "type": "module",
   "description": "Direct McGill timetable data and scheduling tools for AI assistants over MCP",
   "engines": {
@@ -18,7 +17,9 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "verify:live": "node --import tsx scripts/verify-live.ts",
-    "verify:ranking": "node --import tsx scripts/verify-ranking-live.ts"
+    "verify:ranking": "node --import tsx scripts/verify-ranking-live.ts",
+    "prepack": "npm run build",
+    "verify:package": "npm run build && node --import tsx scripts/verify-package.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.3.0",
@@ -36,5 +37,32 @@
     "typescript-eslint": "^8.71.0",
     "vitest": "^5.0.3"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "bin": {
+    "mcgill-vsb-mcp": "dist/server.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "docs/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luca-dupont2/mcgill-vsb-mcp.git"
+  },
+  "homepage": "https://github.com/luca-dupont2/mcgill-vsb-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/luca-dupont2/mcgill-vsb-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "mcgill",
+    "vsb",
+    "courses",
+    "timetable",
+    "scheduling"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }

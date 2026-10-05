@@ -1,21 +1,12 @@
 # McGill VSB MCP
 
-Give your AI assistant direct access to McGill timetable data, without browser automation.
+An [MCP](https://modelcontextprotocol.io) server that gives your AI agents direct access to McGill timetable data through VSB.
 
-This local Model Context Protocol server lets agents search course offerings, fetch sections and meeting times, check conflicts, and explore schedule combinations. It queries McGill's public Visual Schedule Builder feed and returns structured data the agent can reuse across questions. Repeated requests use a short process-local cache.
+Your agents can quickly and on-demand : search course offerings, fetch sections and meeting times, check conflicts, and explore schedule combinations. It queries McGill's public Visual Schedule Builder feed and returns structured data the agent can reuse across questions. Repeated requests use a short process-local cache.
 
-No McGill login, API key, browser session, or project database is required. Your MCP client provides the assistant; this server supplies data and scheduling calculations.
+No McGill login, API key, browser session, or project database is required.
 
-## What your agent can do
-
-Ask questions such as:
-
-- "What sections of ECSE 206 are offered in Winter 2027?"
-- "Do these lecture and tutorial sections overlap?"
-- "Find schedules for ECSE 205 and MATH 263 with no classes before 10:00."
-- "Keep Wednesday afternoon free and rank the remaining schedules by days off."
-
-The server exposes four read-only tools:
+## Tools
 
 | Tool                 | Purpose                                                                                               |
 | -------------------- | ----------------------------------------------------------------------------------------------------- |
@@ -28,29 +19,148 @@ Agents can pass fetched section objects to `check_conflicts` without another net
 
 ## Install and connect
 
-Use Node.js 22.13 or newer, pnpm, and an MCP client that can launch local stdio servers. Clone this repository, then run these commands from its root:
+Install [Node.js](https://nodejs.org/en/download) 22.13 or newer.
+
+Use an MCP client that supports local stdio servers.
+
+### CLI agent harnesses
+
+For any harness that supports local stdio MCP servers, configure these launch settings:
+
+| Setting   | Value                        |
+| --------- | ---------------------------- |
+| Transport | `stdio`                      |
+| Command   | `npx`                        |
+| Arguments | `-y`, `mcgill-vsb-mcp@0.2.0` |
+
+Configuration formats may differ between harnesses.
+
+<details>
+<summary>Codex CLI</summary>
+
+Run these commands in your terminal:
+
+```bash
+codex mcp add mcgill-vsb-mcp -- npx -y mcgill-vsb-mcp@0.2.0
+codex mcp list
+```
+
+Start a new Codex session and run `/mcp` to check the active connection. Alternatively, add this table to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.mcgill-vsb-mcp]
+command = "npx"
+args = ["-y", "mcgill-vsb-mcp@0.2.0"]
+```
+
+See the [Codex MCP guide](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+
+</details>
+
+<details>
+<summary>Claude Code</summary>
+
+Run this command to make the server available across your projects:
+
+```bash
+claude mcp add --transport stdio --scope user mcgill-vsb-mcp -- npx -y mcgill-vsb-mcp@0.2.0
+```
+
+Start a new Claude Code session and run `/mcp` to check the connection. See [Claude Code's MCP guide](https://code.claude.com/docs/en/mcp).
+
+</details>
+
+### Desktop and editor clients
+
+[![Install in Cursor](https://img.shields.io/badge/Install_in-Cursor-black)](https://cursor.com/link/mcp/install?name=mcgill-vsb-mcp&config=eyJ0eXBlIjoic3RkaW8iLCJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIm1jZ2lsbC12c2ItbWNwQDAuMi4wIl19)
+[![Install in VS Code](https://img.shields.io/badge/Install_in-VS_Code-007ACC)](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522mcgill-vsb-mcp%2522%252C%2522type%2522%253A%2522stdio%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522-y%2522%252C%2522mcgill-vsb-mcp%25400.2.0%2522%255D%257D)
+
+These buttons add the configuration to the installed client. Review and approve it, then enable the server's tools. Node.js must already be installed. The first connection downloads the package and can take longer than later connections.
+
+<details>
+<summary>Cursor / Claude Desktop / other stdio clients</summary>
+
+For Cursor, edit `~/.cursor/mcp.json` to use the server across projects, or `.cursor/mcp.json` for a single project. In Claude Desktop, open **Settings → Developer → Edit Config**. Other clients have their own MCP configuration location.
+
+Merge this entry into your client's configuration, preserving existing servers:
+
+```json
+{
+  "mcpServers": {
+    "mcgill-vsb-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "mcgill-vsb-mcp@0.2.0"]
+    }
+  }
+}
+```
+
+Enable the server in Cursor's MCP settings and use Agent mode. Fully quit and reopen Claude Desktop after saving its configuration.
+
+If a Windows client cannot launch `npx`, use `"command": "cmd"` with `"args": ["/c", "npx", "-y", "mcgill-vsb-mcp@0.2.0"]`.
+
+See [Cursor's MCP guide](https://cursor.com/docs/mcp) and the [local MCP server setup guide](https://modelcontextprotocol.io/docs/develop/connect-local-servers).
+
+</details>
+
+<details>
+<summary>VS Code / GitHub Copilot</summary>
+
+Use the install button above, or run this command with the [VS Code CLI](https://code.visualstudio.com/docs/configure/command-line) on your PATH:
+
+```bash
+code --add-mcp '{"name":"mcgill-vsb-mcp","type":"stdio","command":"npx","args":["-y","mcgill-vsb-mcp@0.2.0"]}'
+```
+
+The command uses bash or zsh. For manual configuration, run **MCP: Open User Configuration** from the Command Palette. Add the following entry to `servers`, preserving existing entries. VS Code uses `servers`, rather than `mcpServers`:
+
+```json
+{
+  "servers": {
+    "mcgill-vsb-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "mcgill-vsb-mcp@0.2.0"]
+    }
+  }
+}
+```
+
+Start the server from the configuration editor and accept the trust prompt. Use Copilot's agent chat with the tools enabled. See [VS Code's MCP guide](https://code.visualstudio.com/docs/agent-customization/mcp-servers).
+
+</details>
+
+### Build from source instead
+
+For development or a local source installation, install [pnpm](https://pnpm.io/installation) and Git, then run:
 
 ```bash
 git clone https://github.com/luca-dupont2/mcgill-vsb-mcp.git
 cd mcgill-vsb-mcp
 pnpm install --frozen-lockfile
 pnpm build
+node -p "require('node:path').resolve('dist/server.js')"
 ```
 
-Add the server to your client's MCP configuration. Replace the example path with the absolute path to your checkout:
+Use `"command": "node"` and `"args": ["/absolute/path/to/mcgill-vsb-mcp/dist/server.js"]` in your client's configuration. Replace the example path with the printed absolute path. Keep the checkout on your computer and rebuild after source updates.
 
-```json
-{
-  "mcpServers": {
-    "mcgill-vsb-mcp": {
-      "command": "node",
-      "args": ["/absolute/path/to/mcgill-vsb-mcp/dist/server.js"]
-    }
-  }
-}
-```
+### Check the connection
 
-Restart or reload your client's MCP connection. Confirm that it lists the four tools above. The client launches the server when needed; running `pnpm start` directly waits for MCP messages on stdin.
+Confirm that your client lists the four tools above. The client launches the server when needed. Running `npx -y mcgill-vsb-mcp@0.2.0` in a separate terminal waits for MCP messages on stdin; it does not connect an agent by itself.
+
+Try this prompt:
+
+> Use McGill VSB MCP to search for ECSE courses in Winter 2027. Show three results with their course codes and titles.
+
+Only terms currently published by VSB are available. With a source checkout, `pnpm query terms` lists them.
+
+### Troubleshooting
+
+- **Node or npx not found:** Install Node.js 22.13 or newer and restart the client so it receives the updated PATH. Check the client's MCP logs. On Windows, use the `cmd` configuration above if needed.
+- **Package download failed:** Check internet access to `registry.npmjs.org`. The first launch needs to download the package and its dependencies.
+- **No tools listed:** Reload the MCP connection or restart the client. Confirm that the server is enabled and accept any trust prompt.
+- **Upstream request failed:** Check your internet connection and system clock. VSB may be unavailable, or the requested term may no longer be published.
 
 You can give your agent this instruction:
 
@@ -60,7 +170,7 @@ Only terms currently published by VSB are available. Accepted forms include `202
 
 ## Try the CLI
 
-The CLI uses the same tools and adapter:
+With a [source checkout](#install-and-connect), the CLI uses the same tools and adapter:
 
 ```bash
 pnpm query terms
@@ -103,14 +213,13 @@ pnpm test
 pnpm typecheck
 pnpm lint
 pnpm build
+pnpm verify:package
 ```
 
-Tests run offline using synthetic cases and a small set of anonymous public timetable [fixtures](tests/fixtures/README.md). CI runs these checks on pushes and pull requests. `pnpm dev` runs the source server during development.
+Tests run offline using synthetic cases and a small set of anonymous public timetable [fixtures](tests/fixtures/README.md). CI runs these checks on pushes and pull requests. `pnpm verify:package` packs the release, installs it with production dependencies in a temporary directory, and checks the npm executable and MCP tools. It requires npm registry access. `pnpm dev` runs the source server during development.
 
 After building, run `pnpm verify:live` to exercise all four tools through the compiled stdio server against McGill. Run `pnpm verify:ranking` to check all six VSB ranking modes, conflict checks, pins, and exclusions. These scripts use public example courses; live assertions can fail if offerings change or McGill is unreachable. `MCGILL_SMOKE_TERM` overrides their default term. Save local reports under `.local/`, which Git ignores.
 
 ## License and attribution
 
-The project code uses the [MIT license](LICENSE). Public timetable fixtures contain upstream scheduling facts; the project license does not grant rights to McGill or VSB content, names, or branding.
-
-This is an independent project, unaffiliated with McGill University, VSB, or [mcgill.courses](https://mcgill.courses/). It does not use the mcgill.courses API.
+The project code uses the [MIT license](LICENSE).

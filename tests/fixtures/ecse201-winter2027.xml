@@ -1,0 +1,19 @@
+<addcourse>
+<errors>
+</errors>
+<classdata date="1791174079527">
+ <campus n="DOWNTOWN" v="DOWNTOWN"/>
+ <term n="202701" v="Winter 2027"/>
+ <session n="" v=""/>
+ <course key="ECSE-201" code="ECSE" number="201" enr="" waiting="0" cart="" dsel="" faculty="Faculty of Engineering">
+  <uselection key="--202701_1968--" courseKey="ECSE-201" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="-1,-1">
+   <selection key="--202701_1968--" va="d209" cmkey="ECSE-201" thc="" ucos="{}" inst="" ac="" strm="202701" credits="2.0" creditsMax="2.0" apUnits="0.0" ucr="1">
+    <block type="Intern" key="1968" cartid="1968" secNo="001" status="A" u="false" os="79" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Intern 001" usn="" ot="c" nres="79" recl="0" recul="0" credits="2.0" creditsMax="2.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="" loos="{}" loot="{}"/>
+   </selection>
+  </uselection>
+  <offering key="ECSE-201" cid="" ac="" ag="" ao="" ame="1" oattrs="{}" rgs="" ti="" eq="" clcn="" inst="" title="Co-operative Work Term 1" desc="Supervised and evaluated work experience." snote="" rd=""/>
+ </course>
+ <cids>{}</cids>
+</classdata>
+
+</addcourse>

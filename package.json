@@ -1,0 +1,40 @@
+{
+  "name": "mcgill-vsb-mcp",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Direct McGill timetable data and scheduling tools for AI assistants over MCP",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "packageManager": "pnpm@12.6.0",
+  "scripts": {
+    "dev": "node --import tsx src/server.ts",
+    "start": "node dist/server.js",
+    "query": "node --import tsx src/cli.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "verify:live": "node --import tsx scripts/verify-live.ts",
+    "verify:ranking": "node --import tsx scripts/verify-ranking-live.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.3.0",
+    "fast-xml-parser": "^5.11.2",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@modelcontextprotocol/client": "2.3.0",
+    "@types/node": "^26.6.4",
+    "eslint": "^10.12.0",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.3"
+  },
+  "license": "MIT"
+}

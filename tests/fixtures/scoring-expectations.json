@@ -1,0 +1,19 @@
+{
+  "description": "Independently calculated scores for the synthetic overlapping-segments case in ranking.test.ts. Half-open spans total 27 days; the second Monday block lasts 14 days. The Thursday single-date block has zero scoring duration.",
+  "arithmetic": {
+    "most_days_off": "5 * 27",
+    "mornings": "-(540^1.6 * 27 + 180^1.6 * 14)",
+    "midday_classes": "-(72000 * 13 + 61200 * 14 + 266400 * 27)",
+    "evenings": "-540^1.6 * 27",
+    "time_off_campus": "-(240 * 27 + 180 * 14)",
+    "most_on_campus": "240 * 27 + 60 * 14"
+  },
+  "scores": {
+    "most_days_off": 135,
+    "mornings": -692442.6951607926,
+    "midday_classes": -8985600,
+    "evenings": -635614.4763698648,
+    "time_off_campus": -9000,
+    "most_on_campus": 7320
+  }
+}

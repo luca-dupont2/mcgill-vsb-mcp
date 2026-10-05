@@ -1,0 +1,104 @@
+<addcourse>
+<errors>
+</errors>
+<classdata date="1791174056716">
+ <campus n="DOWNTOWN" v="DOWNTOWN"/>
+ <term n="202701" v="Winter 2027"/>
+ <session n="" v=""/>
+ <course key="MATH-263" code="MATH" number="263" enr="" waiting="0" cart="" dsel="" faculty="Faculty of Engineering">
+  <uselection key="--202701_3227-3229-" courseKey="MATH-263" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="246091515,455154564,434838075,455154564,143853765,455154564">
+   <selection key="--202701_3227-3229-" va="224f" cmkey="MATH-263" thc="" ucos="{}" inst="" ac="" strm="202701" credits="3.0" creditsMax="3.0" apUnits="0.0" ucr="1">
+    <block type="Lec" key="3227" cartid="3227" secNo="001" status="A" u="false" os="0" me="-1" csos="-1" csme="-1" isFull="1" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Lec 001" usn="" ot="c" nres="0" recl="0" recul="0" credits="3.0" creditsMax="3.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="1,2" loos="{}" loot="{}"/>
+    <block type="Tut" key="3229" cartid="3229" secNo="003" status="A" u="false" os="3" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Tut 003" usn="" ot="c" nres="3" recl="0" recul="0" credits="0.0" creditsMax="0.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="3" loos="{}" loot="{}"/>
+   </selection>
+   <timeblock id="1" day="3" t1="875" t2="955" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="2" day="5" t1="875" t2="955" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="3" day="2" t1="755" t2="805" d1="6945" d2="7044" xm="0" ot=""/>
+  </uselection>
+  <uselection key="--202701_3227-3230-" courseKey="MATH-263" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="246091515,455154564,434838075,455154564,135989325,455154564">
+   <selection key="--202701_3227-3230-" va="cf36" cmkey="MATH-263" thc="" ucos="{}" inst="" ac="" strm="202701" credits="3.0" creditsMax="3.0" apUnits="0.0" ucr="1">
+    <block type="Lec" key="3227" cartid="3227" secNo="001" status="A" u="false" os="0" me="-1" csos="-1" csme="-1" isFull="1" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Lec 001" usn="" ot="c" nres="0" recl="0" recul="0" credits="3.0" creditsMax="3.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="4,5" loos="{}" loot="{}"/>
+    <block type="Tut" key="3230" cartid="3230" secNo="004" status="A" u="false" os="7" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Tut 004" usn="" ot="c" nres="7" recl="0" recul="0" credits="0.0" creditsMax="0.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="6" loos="{}" loot="{}"/>
+   </selection>
+   <timeblock id="4" day="3" t1="875" t2="955" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="5" day="5" t1="875" t2="955" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="6" day="2" t1="635" t2="685" d1="6945" d2="7044" xm="0" ot=""/>
+  </uselection>
+  <uselection key="--202701_3227-3231-" courseKey="MATH-263" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="246091515,455154564,434838075,455154564,505618005,455154564">
+   <selection key="--202701_3227-3231-" va="5e75" cmkey="MATH-263" thc="" ucos="{}" inst="" ac="" strm="202701" credits="3.0" creditsMax="3.0" apUnits="0.0" ucr="1">
+    <block type="Lec" key="3227" cartid="3227" secNo="001" status="A" u="false" os="0" me="-1" csos="-1" csme="-1" isFull="1" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Lec 001" usn="" ot="c" nres="0" recl="0" recul="0" credits="3.0" creditsMax="3.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="7,8" loos="{}" loot="{}"/>
+    <block type="Tut" key="3231" cartid="3231" secNo="005" status="A" u="false" os="50" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Tut 005" usn="" ot="c" nres="50" recl="0" recul="0" credits="0.0" creditsMax="0.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="9" loos="{}" loot="{}"/>
+   </selection>
+   <timeblock id="7" day="3" t1="875" t2="955" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="8" day="5" t1="875" t2="955" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="9" day="6" t1="515" t2="565" d1="6945" d2="7044" xm="0" ot=""/>
+  </uselection>
+  <uselection key="--202701_3227-3232-" courseKey="MATH-263" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="246091515,455154564,434838075,455154564,147785985,455154564">
+   <selection key="--202701_3227-3232-" va="7c3c" cmkey="MATH-263" thc="" ucos="{}" inst="" ac="" strm="202701" credits="3.0" creditsMax="3.0" apUnits="0.0" ucr="1">
+    <block type="Lec" key="3227" cartid="3227" secNo="001" status="A" u="false" os="0" me="-1" csos="-1" csme="-1" isFull="1" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Lec 001" usn="" ot="c" nres="0" recl="0" recul="0" credits="3.0" creditsMax="3.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="10,11" loos="{}" loot="{}"/>
+    <block type="Tut" key="3232" cartid="3232" secNo="006" status="A" u="false" os="2" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Tut 006" usn="" ot="c" nres="2" recl="0" recul="0" credits="0.0" creditsMax="0.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="12" loos="{}" loot="{}"/>
+   </selection>
+   <timeblock id="10" day="3" t1="875" t2="955" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="11" day="5" t1="875" t2="955" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="12" day="2" t1="815" t2="865" d1="6945" d2="7044" xm="0" ot=""/>
+  </uselection>
+  <uselection key="--202701_3227-3233-" courseKey="MATH-263" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="246091515,455154564,434838075,455154564,139921545,455154564">
+   <selection key="--202701_3227-3233-" va="e390" cmkey="MATH-263" thc="" ucos="{}" inst="" ac="" strm="202701" credits="3.0" creditsMax="3.0" apUnits="0.0" ucr="1">
+    <block type="Lec" key="3227" cartid="3227" secNo="001" status="A" u="false" os="0" me="-1" csos="-1" csme="-1" isFull="1" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Lec 001" usn="" ot="c" nres="0" recl="0" recul="0" credits="3.0" creditsMax="3.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="13,14" loos="{}" loot="{}"/>
+    <block type="Tut" key="3233" cartid="3233" secNo="007" status="A" u="false" os="39" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Tut 007" usn="" ot="c" nres="39" recl="0" recul="0" credits="0.0" creditsMax="0.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="15" loos="{}" loot="{}"/>
+   </selection>
+   <timeblock id="13" day="3" t1="875" t2="955" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="14" day="5" t1="875" t2="955" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="15" day="2" t1="695" t2="745" d1="6945" d2="7044" xm="0" ot=""/>
+  </uselection>
+  <uselection key="--202701_3228-3229-" courseKey="MATH-263" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="222498195,455154564,411244755,455154564,143853765,455154564">
+   <selection key="--202701_3228-3229-" va="1063" cmkey="MATH-263" thc="" ucos="{}" inst="" ac="" strm="202701" credits="3.0" creditsMax="3.0" apUnits="0.0" ucr="1">
+    <block type="Lec" key="3228" cartid="3228" secNo="002" status="A" u="false" os="101" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Lec 002" usn="" ot="c" nres="101" recl="0" recul="0" credits="3.0" creditsMax="3.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="16,17" loos="{}" loot="{}"/>
+    <block type="Tut" key="3229" cartid="3229" secNo="003" status="A" u="false" os="3" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Tut 003" usn="" ot="c" nres="3" recl="0" recul="0" credits="0.0" creditsMax="0.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="18" loos="{}" loot="{}"/>
+   </selection>
+   <timeblock id="16" day="3" t1="515" t2="595" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="17" day="5" t1="515" t2="595" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="18" day="2" t1="755" t2="805" d1="6945" d2="7044" xm="0" ot=""/>
+  </uselection>
+  <uselection key="--202701_3228-3230-" courseKey="MATH-263" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="222498195,455154564,411244755,455154564,135989325,455154564">
+   <selection key="--202701_3228-3230-" va="c6d9" cmkey="MATH-263" thc="" ucos="{}" inst="" ac="" strm="202701" credits="3.0" creditsMax="3.0" apUnits="0.0" ucr="1">
+    <block type="Lec" key="3228" cartid="3228" secNo="002" status="A" u="false" os="101" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Lec 002" usn="" ot="c" nres="101" recl="0" recul="0" credits="3.0" creditsMax="3.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="19,20" loos="{}" loot="{}"/>
+    <block type="Tut" key="3230" cartid="3230" secNo="004" status="A" u="false" os="7" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Tut 004" usn="" ot="c" nres="7" recl="0" recul="0" credits="0.0" creditsMax="0.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="21" loos="{}" loot="{}"/>
+   </selection>
+   <timeblock id="19" day="3" t1="515" t2="595" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="20" day="5" t1="515" t2="595" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="21" day="2" t1="635" t2="685" d1="6945" d2="7044" xm="0" ot=""/>
+  </uselection>
+  <uselection key="--202701_3228-3231-" courseKey="MATH-263" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="222498195,455154564,411244755,455154564,505618005,455154564">
+   <selection key="--202701_3228-3231-" va="b05f" cmkey="MATH-263" thc="" ucos="{}" inst="" ac="" strm="202701" credits="3.0" creditsMax="3.0" apUnits="0.0" ucr="1">
+    <block type="Lec" key="3228" cartid="3228" secNo="002" status="A" u="false" os="101" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Lec 002" usn="" ot="c" nres="101" recl="0" recul="0" credits="3.0" creditsMax="3.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="22,23" loos="{}" loot="{}"/>
+    <block type="Tut" key="3231" cartid="3231" secNo="005" status="A" u="false" os="50" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Tut 005" usn="" ot="c" nres="50" recl="0" recul="0" credits="0.0" creditsMax="0.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="24" loos="{}" loot="{}"/>
+   </selection>
+   <timeblock id="22" day="3" t1="515" t2="595" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="23" day="5" t1="515" t2="595" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="24" day="6" t1="515" t2="565" d1="6945" d2="7044" xm="0" ot=""/>
+  </uselection>
+  <uselection key="--202701_3228-3232-" courseKey="MATH-263" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="222498195,455154564,411244755,455154564,147785985,455154564">
+   <selection key="--202701_3228-3232-" va="56d5" cmkey="MATH-263" thc="" ucos="{}" inst="" ac="" strm="202701" credits="3.0" creditsMax="3.0" apUnits="0.0" ucr="1">
+    <block type="Lec" key="3228" cartid="3228" secNo="002" status="A" u="false" os="101" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Lec 002" usn="" ot="c" nres="101" recl="0" recul="0" credits="3.0" creditsMax="3.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="25,26" loos="{}" loot="{}"/>
+    <block type="Tut" key="3232" cartid="3232" secNo="006" status="A" u="false" os="2" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Tut 006" usn="" ot="c" nres="2" recl="0" recul="0" credits="0.0" creditsMax="0.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="27" loos="{}" loot="{}"/>
+   </selection>
+   <timeblock id="25" day="3" t1="515" t2="595" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="26" day="5" t1="515" t2="595" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="27" day="2" t1="815" t2="865" d1="6945" d2="7044" xm="0" ot=""/>
+  </uselection>
+  <uselection key="--202701_3228-3233-" courseKey="MATH-263" d1="6945" d2="7044" de="70128" ss="" mp="false" too8="false" bs="222498195,455154564,411244755,455154564,139921545,455154564">
+   <selection key="--202701_3228-3233-" va="26ba" cmkey="MATH-263" thc="" ucos="{}" inst="" ac="" strm="202701" credits="3.0" creditsMax="3.0" apUnits="0.0" ucr="1">
+    <block type="Lec" key="3228" cartid="3228" secNo="002" status="A" u="false" os="101" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Lec 002" usn="" ot="c" nres="101" recl="0" recul="0" credits="3.0" creditsMax="3.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="28,29" loos="{}" loot="{}"/>
+    <block type="Tut" key="3233" cartid="3233" secNo="007" status="A" u="false" os="39" me="-1" csos="-1" csme="-1" isFull="0" ws="0" wc="0" custstat="" c="false" hue="0" n="" txtb="" fd="" disp="Tut 007" usn="" ot="c" nres="39" recl="0" recul="0" credits="0.0" creditsMax="0.0" rgs="" ac="" pn="" im="" hs="" attrs="{}" eattrs="{}" teacher="" location="" campus="DOWNTOWN" psl="null" timeblockids="30" loos="{}" loot="{}"/>
+   </selection>
+   <timeblock id="28" day="3" t1="515" t2="595" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="29" day="5" t1="515" t2="595" d1="6945" d2="7044" xm="0" ot=""/>
+   <timeblock id="30" day="2" t1="695" t2="745" d1="6945" d2="7044" xm="0" ot=""/>
+  </uselection>
+  <offering key="MATH-263" cid="" ac="" ag="" ao="" ame="1" oattrs="{}" rgs="" ti="" eq="" clcn="" inst="" title="ODEs for Engineers" desc="First order ODEs. Second and higher order linear ODEs. Series solutions at ordinary and regular singular points. Laplace transforms. Linear systems of differential equations with a short review of linear algebra." snote="" rd=""/>
+ </course>
+ <cids>{}</cids>
+</classdata>
+
+</addcourse>

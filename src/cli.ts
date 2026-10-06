@@ -35,6 +35,7 @@ try {
       ranking: { type: 'string' },
       constraints: { type: 'string' },
       view: { type: 'string' },
+      refresh: { type: 'boolean' },
     },
   });
   const [command, ...arguments_] = positionals;
@@ -47,6 +48,7 @@ try {
       data,
       batchSectionsSchema.parse({
         course_codes: arguments_,
+        refresh: values.refresh,
         term: values.term,
         ...(values.view ? { view: values.view } : {}),
       }),
@@ -56,6 +58,7 @@ try {
       data,
       sectionsSchema.parse({
         course_code: arguments_.join(' '),
+        refresh: values.refresh,
         term: values.term,
         ...(values.view ? { view: values.view } : {}),
       }),
@@ -96,7 +99,7 @@ try {
   else
     throw new AppError(
       'invalid_command',
-      'Use terms, search <query>, sections <course>, sections-batch <quoted course codes>, conflicts <section ids>, or schedules <quoted course codes>. Supply --term for search, sections, sections-batch, and schedules. Sections and schedules accept --view full or compact.',
+      'Use terms, search <query>, sections <course>, sections-batch <quoted course codes>, conflicts <section ids>, or schedules <quoted course codes>. Supply --term for search, sections, sections-batch, and schedules. Sections and schedules accept --view full or compact. Sections and sections-batch accept --refresh for new seat observations.',
     );
   console.log(JSON.stringify(result, null, 2));
 } catch (error) {

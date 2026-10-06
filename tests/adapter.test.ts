@@ -23,6 +23,37 @@ function fakeSource() {
   return { fetcher, adapter: new McGillAdapter({ fetch: fetcher }) };
 }
 describe('adapter requests', () => {
+  it('refreshes course observations and replaces cached values without extra term requests', async () => {
+    let open = 12;
+    let now = 1000;
+    const fetcher = vi.fn<typeof fetch>(async (input) => {
+      const url = new URL(String(input));
+      if (url.pathname.endsWith('globalsettings.jsp'))
+        return new Response(fixture('globalsettings.js'));
+      return new Response(
+        fixture('ecse206-winter2027.xml').replaceAll('os="1"', `os="${open}"`),
+      );
+    });
+    const adapter = new McGillAdapter({ fetch: fetcher, now: () => now });
+    expect(
+      (await adapter.getSections('ECSE 206', '2027 Winter')).sections[0]!.seats!
+        .remaining,
+    ).toBe(12);
+    open = 8;
+    now = 2000;
+    expect(
+      (await adapter.getSections('ECSE 206', '2027 Winter')).sections[0]!.seats!
+        .remaining,
+    ).toBe(12);
+    const fresh = await adapter.getSections('ECSE 206', '2027 Winter', true);
+    expect(fresh.sections[0]!.seats!.remaining).toBe(8);
+    expect(fresh.source!.retrieved_at).toBe(new Date(now).toISOString());
+    expect(
+      (await adapter.getSections('ECSE 206', '2027 Winter')).sections[0]!.seats!
+        .remaining,
+    ).toBe(8);
+    expect(fetcher).toHaveBeenCalledTimes(3);
+  });
   it('normalizes codes and terms, caches retrieval and preserves source observation time', async () => {
     const { fetcher, adapter } = fakeSource();
     const first = await adapter.getSections('ECSE-206', 'Winter 2027');

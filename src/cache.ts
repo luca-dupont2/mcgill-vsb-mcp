@@ -7,7 +7,8 @@ export class TtlCache<T> {
     private readonly maxEntries = 256,
     private readonly now = Date.now,
   ) {}
-  async get(key: string, load: () => Promise<T>): Promise<T> {
+  async get(key: string, load: () => Promise<T>, refresh = false): Promise<T> {
+    if (refresh) this.values.delete(key);
     const hit = this.values.get(key);
     if (hit && hit.expires > this.now()) return structuredClone(hit.value);
     if (hit) this.values.delete(key);

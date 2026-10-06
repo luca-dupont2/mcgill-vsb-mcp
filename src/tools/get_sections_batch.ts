@@ -10,6 +10,12 @@ export const batchSectionsSchema = z
     course_codes: z.array(codeInput).min(1).max(12),
     term: termInput,
     view: responseView,
+    refresh: z
+      .boolean()
+      .default(false)
+      .describe(
+        'Bypass the course cache for each course to retrieve new VSB seat/timetable observations.',
+      ),
   })
   .strict();
 
@@ -37,7 +43,7 @@ export async function getSectionsBatch(
       code = normalizeCourseCode(inputCode);
       if (seen.has(code)) continue;
       seen.add(code);
-      const course = await data.getSections(code, term.label);
+      const course = await data.getSections(code, term.label, input.refresh);
       results.push({
         course_code: code,
         ok: true,

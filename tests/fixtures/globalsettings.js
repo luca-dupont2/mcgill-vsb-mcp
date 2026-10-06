@@ -2,3 +2,6 @@
 var terms = new Array();
 terms.push('202609');
 terms.push('202701');
+
+var inspecificSeats = false;
+var onReservedFilter = false;

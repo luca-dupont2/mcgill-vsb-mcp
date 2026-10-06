@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Client, InMemoryTransport } from '@modelcontextprotocol/client';
 import { createServer } from '../src/server.js';
 import type { McGillData } from '../src/adapters/mcgill.js';
@@ -48,6 +48,7 @@ describe('MCP SDK client/server integration', () => {
   afterEach(async () => {
     await client.close();
     await server.close();
+    vi.restoreAllMocks();
   });
   async function call(name: string, args: Record<string, unknown>) {
     const result = await client.callTool({ name, arguments: args });
@@ -74,6 +75,33 @@ describe('MCP SDK client/server integration', () => {
       ],
       source: { name: 'McGill VSB' },
     });
+  });
+  it('exposes seat observations in both views and forwards refresh through single and batch calls', async () => {
+    const spy = vi.spyOn(data, 'getSections');
+    const full = await call('get_sections', {
+      course_code: 'COMP 202',
+      term: '2027 Winter',
+      refresh: true,
+    });
+    expect(spy).toHaveBeenLastCalledWith('COMP 202', '2027 Winter', true);
+    const sections = full.sections as Record<string, unknown>[];
+    expect(sections[0]!.seats).toMatchObject({
+      status: 'available',
+      capacity: null,
+      enrolled: null,
+    });
+    const compact = await call('get_sections_batch', {
+      course_codes: ['COMP 202', 'comp202'],
+      term: '2027 Winter',
+      view: 'compact',
+      refresh: true,
+    });
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenLastCalledWith('COMP 202', '2027 Winter', true);
+    const results = compact.results as {
+      data: { sections: Record<string, unknown>[] };
+    }[];
+    expect(results[0]!.data.sections[0]!.seats).toEqual(sections[0]!.seats);
   });
   it('returns ordered batch successes and errors, deduplicating normalized codes', async () => {
     const result = await call('get_sections_batch', {

@@ -1,6 +1,8 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 import { z } from 'zod';
 import { AppError } from '../errors.js';
+import { parseSeats, seatAttributes } from './seats.js';
+import type { SeatSettings } from './seats.js';
 import { meetingSchema, normalizeCourseCode } from '../models.js';
 import type {
   CourseSections,
@@ -70,6 +72,9 @@ const timeblock = z.object({
   ot: z.string().optional(),
 });
 const block = z.object({
+  ...(Object.fromEntries(
+    seatAttributes.map((key) => [key, z.string().optional()]),
+  ) as Record<(typeof seatAttributes)[number], z.ZodOptional<z.ZodString>>),
   key: z.string().min(1),
   cartid: z.string().optional(),
   secNo: z.string().min(1),
@@ -162,6 +167,7 @@ export function parseSections(
   input: string,
   requestedCode: string,
   term: Term,
+  seatSettings: SeatSettings = { specificCounts: true, reservedCounts: false },
 ): CourseSections {
   const root = validate(response, xml(input)).addcourse;
   const messages =
@@ -293,6 +299,7 @@ export function parseSections(
           section: b.secNo,
           component: components[b.type] ?? b.type.toLowerCase(),
           active: status === 'A',
+          seats: parseSeats(b, seatSettings),
           meetings,
           ...(crn ? { crn } : {}),
           ...(instructor ? { instructor } : {}),

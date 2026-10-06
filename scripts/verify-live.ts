@@ -109,6 +109,54 @@ try {
     full_bytes: JSON.stringify(ecse).length,
     compact_bytes: JSON.stringify(compact).length,
   });
+  const seatCourse = await call('get_sections', {
+    course_code: 'COMP 202',
+    term,
+    view: 'compact',
+    refresh: true,
+  });
+  const seatSections = z
+    .array(
+      z.object({
+        id: z.string(),
+        seats: z.object({
+          status: z.enum([
+            'available',
+            'full',
+            'closed',
+            'cancelled',
+            'unlimited',
+            'unknown',
+          ]),
+          remaining: z.number().int().nonnegative().nullable(),
+          capacity: z.number().int().nonnegative().nullable(),
+          enrolled: z.number().int().nonnegative().nullable(),
+          non_reserved_remaining: z.number().int().nonnegative().nullable(),
+          reserved_remaining: z.number().int().nonnegative().nullable(),
+          waitlist: z.object({
+            status: z.string(),
+            remaining: z.number().int().nonnegative().nullable(),
+            capacity: z.number().int().nonnegative().nullable(),
+            enrolled: z.number().int().nonnegative().nullable(),
+          }),
+        }),
+      }),
+    )
+    .parse(seatCourse.sections);
+  assert(seatSections.length > 0);
+  for (const section of seatSections) {
+    if (section.seats.capacity === null)
+      assert.equal(section.seats.enrolled, null);
+    if (section.seats.non_reserved_remaining === null)
+      assert.equal(section.seats.reserved_remaining, null);
+  }
+  observations.push({
+    tool: 'get_sections',
+    purpose: 'fresh seat observations',
+    term,
+    sections: seatSections,
+    source: seatCourse.source,
+  });
   const phil = await call('get_sections', { course_code: 'PHIL 237', term });
   const ecseSections = z.array(sectionInput).parse(ecse.sections);
   const philSections = z.array(sectionInput).parse(phil.sections);

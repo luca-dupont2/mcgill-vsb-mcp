@@ -77,6 +77,26 @@ export const meetingSchema = z
     'Meeting dates must be ordered.',
   );
 export type Meeting = z.infer<typeof meetingSchema>;
+export type SeatAvailability = {
+  status:
+    'available' | 'full' | 'closed' | 'cancelled' | 'unlimited' | 'unknown';
+  remaining: number | null;
+  capacity: number | null;
+  enrolled: number | null;
+  non_reserved_remaining: number | null;
+  reserved_remaining: number | null;
+  combined: {
+    remaining: number | null;
+    capacity: number | null;
+    enrolled: number | null;
+  };
+  waitlist: {
+    status: 'available' | 'full' | 'none' | 'unknown';
+    remaining: number | null;
+    capacity: number | null;
+    enrolled: number | null;
+  };
+};
 export type Section = {
   id: string;
   courseCode: string;
@@ -87,6 +107,7 @@ export type Section = {
   instructor?: string;
   status?: string;
   active: boolean;
+  seats?: SeatAvailability;
   meetings: Meeting[];
 };
 export type Course = { code: string; title: string; term: string };
@@ -141,6 +162,7 @@ export function presentSection(s: Section) {
     ...(s.instructor ? { instructor: s.instructor } : {}),
     ...(s.status ? { status: s.status } : {}),
     active: s.active,
+    ...(s.seats ? { seats: s.seats } : {}),
     meetings: s.meetings.map(presentMeeting),
   };
 }

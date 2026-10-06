@@ -10,7 +10,7 @@ The XML course fixtures were captured anonymously from McGill VSB on 2026-10-05 
 | `comp202-winter2027.xml` | Two lecture alternatives; positive three-course integration                                               |
 | `phil237-winter2027.xml` | Multi-day lecture, conference note                                                                        |
 | `ecse201-winter2027.xml` | Untimed internship                                                                                        |
-| `globalsettings.js`      | Minimal public enabled-term assignments excerpt                                                           |
+| `globalsettings.js`      | Minimal public enabled-term and seat-visibility settings excerpt                                          |
 | `suggestions.xml`        | Synthetic minimal search response following the observed format, including HTML annotation and pagination |
 
 Only representative responses are stored. These are test inputs, not a redistributed course catalog. [The adapter parser](../../src/adapters/parsing.ts) defines the supported network format. Tests mutate these fixtures in memory to exercise malformed records, contradictory duplicates, canceled statuses, supplied locations, and missing linkage. Synthetic scheduling fixtures in `tests/helpers.ts` are independent of current McGill offerings.

@@ -14,7 +14,7 @@ Returns the terms currently published by VSB, each with `id`, `label`, `year`, a
 
 `get_sections`, `get_sections_batch`, and `generate_schedules` accept `view: "full"` or `view: "compact"`. The default is `full`, which preserves the existing response fields. Search results and conflict checks already return focused results and have no view option.
 
-Compact section results omit repeated `course_code` and `term` fields from each section, and omit numeric `start_minutes` and `end_minutes` from meetings. They retain readable times, date ranges, section IDs, status, instructors and locations when published, component bundles, linkage, warnings, and source provenance. Each section adds `complete`, which is false when timed meetings or complete date bounds are missing. Compact section objects cannot be passed directly to `check_conflicts`; pass their IDs, or request full section objects.
+Compact section results omit repeated `course_code` and `term` fields from each section, and omit numeric `start_minutes` and `end_minutes` from meetings. They retain readable times, date ranges, section IDs, seat/waitlist observations, status, instructors and locations when published, component bundles, linkage, warnings, and source provenance. Each section adds `complete`, which is false when timed meetings or complete date bounds are missing. Compact section objects cannot be passed directly to `check_conflicts`; pass their IDs, or request full section objects.
 
 Compact schedule results omit each schedule's `meetings` and detailed `attendance`. They retain section IDs, summary metrics, ranking scores and provenance, completeness, warnings, and every request-level field, including search coverage, verified and provisional counts, analysis dates, and source timestamps. Request the full view to inspect dated attendance exceptions. Compact responses reduce output size, not upstream requests or schedule calculations.
 
@@ -106,6 +106,47 @@ An actual Winter 2027 lecture section has this shape:
 ```
 
 Instructor and location are omitted when absent. Meeting date ranges are inclusive local calendar dates; clock times are McGill's local times in Montreal. IDs include the term and upstream section key. Treat them as opaque identifiers. An empty meeting list means no timed meetings are published, not guaranteed free time.
+
+## Seat and waitlist observations
+
+`get_sections` and `get_sections_batch` include a `seats` object on each section in both response views. Set `refresh: true` to bypass cached course data; the default is `false`. The CLI equivalent is `--refresh` with `sections` or `sections-batch`. The course-level `source.retrieved_at` timestamps the observation. Default caching lasts five minutes, configurable with `MCGILL_CACHE_TTL_MS`; these are observations rather than a continuously updated seat feed.
+
+| Field                    | Meaning                                                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `status`                 | `available`, `full`, `closed`, `cancelled`, `unlimited`, or `unknown`, as reported by VSB                    |
+| `remaining`              | Published open seats in this section                                                                         |
+| `capacity`               | Published maximum enrollment; currently withheld in sampled McGill responses                                 |
+| `enrolled`               | Capacity minus remaining, only when both are known and consistent                                            |
+| `non_reserved_remaining` | Published non-reserved open seats, only when reservation reporting is enabled                                |
+| `reserved_remaining`     | Remaining minus non-reserved remaining, only when both are known and consistent; not total reserved capacity |
+| `combined`               | Separate `remaining`, `capacity`, and derived `enrolled` for a shared combined-section limit, when published |
+| `waitlist`               | `status` (`available`, `full`, `none`, or `unknown`), `remaining`, `capacity`, and derived `enrolled`        |
+
+A representative observation (counts change):
+
+```json
+{
+  "status": "available",
+  "remaining": 12,
+  "capacity": null,
+  "enrolled": null,
+  "non_reserved_remaining": null,
+  "reserved_remaining": null,
+  "combined": { "remaining": null, "capacity": null, "enrolled": null },
+  "waitlist": {
+    "status": "available",
+    "remaining": 7,
+    "capacity": 10,
+    "enrolled": 3
+  }
+}
+```
+
+`null` means unavailable, never zero. Zero is retained when VSB reports it. Unknown seat availability, withheld/invalid counts, and unlimited-seat sentinels do not become numeric counts. If VSB disables exact count reporting, availability statuses remain but counts are null. Reservation reporting is currently disabled in McGill's public settings; the MCP does not interpret the feed's default reservation values as a verified breakdown. No program-specific reservation pools or personal eligibility are available from these observations.
+
+The anonymous `api/class-data` response supplies the data. The implementation independently normalizes the public client's field meanings: `os`/`me` for open seats/maximum enrollment, `csos`/`csme` for combined limits, `ws`/`wc` for waitlist spaces/capacity, and `nres` for non-reserved open seats when enabled. Negative sentinels mean unavailable; `os=9999` indicates unlimited seats. No VSB source functions are redistributed. See [VSB's public settings](https://vsb.mcgill.ca/vsb/globalsettings.jsp) and [McGill's VSB FAQ](https://mcgill.service-now.com/itportal?id=kb_article_view&sysparm_article=KB0011230).
+
+Seats remaining does not establish that you can register: reservations, restrictions, combined limits, and registration dates may still apply. Schedule generation continues to check timetable compatibility and does not filter by seats. Retrieve its section IDs with `get_sections` or `get_sections_batch` to inspect current availability.
 
 ## `check_conflicts`
 

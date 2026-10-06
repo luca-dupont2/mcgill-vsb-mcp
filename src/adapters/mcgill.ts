@@ -4,6 +4,8 @@ import { normalizeCourseCode, normalizeTerm } from '../models.js';
 import type { Course, CourseSections, Term } from '../models.js';
 import { parseSections, parseSuggestions, parseTerms } from './parsing.js';
 import { VERSION } from '../version.js';
+import { parseSeatSettings } from './seats.js';
+import type { SeatSettings } from './seats.js';
 
 export type McGillData = Pick<
   McGillAdapter,
@@ -19,7 +21,7 @@ const BASE = 'https://vsb.mcgill.ca/vsb/';
 export class McGillAdapter {
   private readonly courses: TtlCache<CourseSections>;
   private readonly searches: TtlCache<{ courses: Course[]; hasMore: boolean }>;
-  private readonly terms: TtlCache<Term[]>;
+  private readonly settings: TtlCache<{ terms: Term[]; seats: SeatSettings }>;
   private readonly fetcher: typeof fetch;
   private readonly timeoutMs: number;
   private readonly now: () => number;
@@ -27,7 +29,7 @@ export class McGillAdapter {
     const ttl = options.ttlMs ?? 300000;
     this.courses = new TtlCache(ttl);
     this.searches = new TtlCache(ttl);
-    this.terms = new TtlCache(ttl);
+    this.settings = new TtlCache(ttl);
     this.fetcher = options.fetch ?? fetch;
     this.now = options.now ?? Date.now;
     this.timeoutMs = options.timeoutMs ?? 15000;
@@ -85,10 +87,14 @@ export class McGillAdapter {
       );
     }
   }
-  listTerms(): Promise<Term[]> {
-    return this.terms.get('terms', async () =>
-      parseTerms(await this.request('globalsettings.jsp')),
-    );
+  private getSettings() {
+    return this.settings.get('settings', async () => {
+      const input = await this.request('globalsettings.jsp');
+      return { terms: parseTerms(input), seats: parseSeatSettings(input) };
+    });
+  }
+  async listTerms(): Promise<Term[]> {
+    return (await this.getSettings()).terms;
   }
   private async availableTerm(input: string): Promise<Term> {
     const term = normalizeTerm(input);
@@ -104,28 +110,39 @@ export class McGillAdapter {
   async getSections(
     inputCode: string,
     inputTerm: string,
+    refresh = false,
   ): Promise<CourseSections> {
     const code = normalizeCourseCode(inputCode);
     const term = await this.availableTerm(inputTerm);
-    return this.courses.get(`${term.id}:${code}`, async () => {
-      const result = parseSections(
-        await this.request('api/class-data', {
-          term: term.id,
-          course_0_0: code.replace(' ', '-'),
-          nouser: '1',
-        }),
-        code,
-        term,
-      );
-      return {
-        ...result,
-        source: {
-          name: 'McGill VSB',
-          url: new URL('api/class-data', BASE).href,
-          retrieved_at: new Date(this.now()).toISOString(),
-        },
-      };
-    });
+    const settings = await this.getSettings();
+    return this.courses.get(
+      `${term.id}:${code}`,
+      async () => {
+        const result = parseSections(
+          await this.request('api/class-data', {
+            term: term.id,
+            course_0_0: code.replace(' ', '-'),
+            nouser: '1',
+          }),
+          code,
+          term,
+          settings.seats,
+        );
+        return {
+          ...result,
+          warnings: [
+            ...result.warnings,
+            'Seat and waitlist counts are VSB observations, not registration eligibility. Null counts are unavailable; reserved-seat breakdowns are unavailable when VSB disables reservation reporting. Use refresh=true to bypass cached course data.',
+          ],
+          source: {
+            name: 'McGill VSB',
+            url: new URL('api/class-data', BASE).href,
+            retrieved_at: new Date(this.now()).toISOString(),
+          },
+        };
+      },
+      refresh,
+    );
   }
   async searchCourses(
     query: string,

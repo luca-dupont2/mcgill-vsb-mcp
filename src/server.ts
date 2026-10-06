@@ -67,7 +67,7 @@ export function createServer(
     'get_sections_batch',
     {
       description:
-        'Fetch sections for up to 12 courses in one published term, sequentially. Normalized duplicate codes are retrieved once. Results preserve input order and include per-course errors; inspect all_succeeded and each ok flag. Choose view=compact for readable meeting times or full for reusable section objects.',
+        'Fetch sections for up to 12 courses in one published term, sequentially. Normalized duplicate codes are retrieved once. Results preserve input order and include per-course errors; inspect all_succeeded and each ok flag. Includes reported seats remaining and waitlist counts; null counts are unavailable. Set refresh=true for a new observation. Choose view=compact for readable meeting times or full for reusable section objects.',
       inputSchema: batchSectionsSchema,
       annotations,
     },
@@ -87,7 +87,7 @@ export function createServer(
     'get_sections',
     {
       description:
-        'Retrieve McGill sections, date ranges, source component bundles and uncertainty. Default view=full returns reusable section objects; view=compact omits repeated course/term fields and numeric times. Compact section ids can be used with check_conflicts.',
+        'Retrieve McGill sections, meeting dates, component bundles, reported seats remaining, and waitlist counts. Null seat counts are unavailable; availability does not establish eligibility. Set refresh=true to bypass cached course data. Default view=full returns reusable section objects; view=compact omits repeated course/term fields and numeric times. Compact section ids can be used with check_conflicts.',
       inputSchema: sectionsSchema,
       annotations,
     },

@@ -106,11 +106,25 @@ export type Section = {
   component: string;
   instructor?: string;
   status?: string;
+  credits?: number;
+  creditsMax?: number;
+  campus?: string;
+  delivery?: 'on_campus' | 'online' | 'mixed' | 'off_campus' | 'unknown';
+  deliveryCode?: string;
+  notes?: string;
   active: boolean;
   seats?: SeatAvailability;
   meetings: Meeting[];
 };
-export type Course = { code: string; title: string; term: string };
+export type Course = {
+  code: string;
+  title: string;
+  term: string;
+  description?: string;
+  faculty?: string;
+  credits?: number;
+  creditsMax?: number;
+};
 /** VSB uses these date boundaries for segment scoring, independently of inclusive attendance dates. */
 export type VsbScoreBlock = {
   day: Day;
@@ -162,6 +176,12 @@ export function presentSection(s: Section) {
     ...(s.instructor ? { instructor: s.instructor } : {}),
     ...(s.status ? { status: s.status } : {}),
     active: s.active,
+    ...(s.credits !== undefined ? { credits: s.credits } : {}),
+    ...(s.creditsMax !== undefined ? { credits_max: s.creditsMax } : {}),
+    ...(s.campus ? { campus: s.campus } : {}),
+    ...(s.delivery ? { delivery: s.delivery } : {}),
+    ...(s.deliveryCode ? { delivery_code: s.deliveryCode } : {}),
+    ...(s.notes ? { notes: s.notes } : {}),
     ...(s.seats ? { seats: s.seats } : {}),
     meetings: s.meetings.map(presentMeeting),
   };
@@ -169,5 +189,17 @@ export function presentSection(s: Section) {
 export function presentCourseSections(c: CourseSections) {
   const { bundleScoreBlocks: _internal, ...output } = c;
   void _internal;
-  return { ...output, sections: c.sections.map(presentSection) };
+  return {
+    ...output,
+    course: presentCourse(c.course),
+    sections: c.sections.map(presentSection),
+  };
+}
+export function presentCourse(c: Course, compact = false) {
+  const { creditsMax, description, ...summary } = c;
+  return {
+    ...summary,
+    ...(creditsMax !== undefined ? { credits_max: creditsMax } : {}),
+    ...(!compact && description ? { description } : {}),
+  };
 }

@@ -67,7 +67,7 @@ export function createServer(
     'get_sections_batch',
     {
       description:
-        'Fetch sections for up to 12 courses in one published term, sequentially. Normalized duplicate codes are retrieved once. Results preserve input order and include per-course errors; inspect all_succeeded and each ok flag. Includes reported seats remaining and waitlist counts; null counts are unavailable. Set refresh=true for a new observation. Choose view=compact for readable meeting times or full for reusable section objects.',
+        'Fetch sections and course metadata for up to 12 courses in one published term, sequentially. Full view includes descriptions; both views include credits, faculty, campus, delivery, and section notes when published. Normalized duplicate codes are retrieved once. Results preserve input order and include per-course errors; inspect all_succeeded and each ok flag. Includes reported seats remaining and waitlist counts; null counts are unavailable. Set refresh=true for a new observation. Choose view=compact for readable meeting times or full for reusable section objects.',
       inputSchema: batchSectionsSchema,
       annotations,
     },
@@ -77,7 +77,7 @@ export function createServer(
     'search_courses',
     {
       description:
-        'Search McGill VSB by course code, subject, title, or keywords for a published term. Bounded pages; has_more indicates additional upstream suggestions.',
+        'Search McGill VSB by course code, subject, title, or keywords for a published term. Results include faculty and credits when published; retrieve full sections for descriptions and section metadata. Bounded pages; has_more indicates additional upstream suggestions.',
       inputSchema: searchSchema,
       annotations,
     },
@@ -87,7 +87,7 @@ export function createServer(
     'get_sections',
     {
       description:
-        'Retrieve McGill sections, meeting dates, component bundles, reported seats remaining, and waitlist counts. Null seat counts are unavailable; availability does not establish eligibility. Set refresh=true to bypass cached course data. Default view=full returns reusable section objects; view=compact omits repeated course/term fields and numeric times. Compact section ids can be used with check_conflicts.',
+        'Retrieve McGill sections, meeting dates, component bundles, course descriptions, credits, faculty, campus, delivery mode, section notes, reported seats remaining, and waitlist counts. Descriptions appear only in full view; missing metadata is omitted. Null seat counts are unavailable; availability does not establish eligibility. Set refresh=true to bypass cached course data. Default view=full returns reusable section objects; view=compact omits repeated course/term fields and numeric times. Compact section ids can be used with check_conflicts.',
       inputSchema: sectionsSchema,
       annotations,
     },

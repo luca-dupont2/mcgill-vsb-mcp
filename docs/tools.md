@@ -14,7 +14,7 @@ Returns the terms currently published by VSB, each with `id`, `label`, `year`, a
 
 `get_sections`, `get_sections_batch`, and `generate_schedules` accept `view: "full"` or `view: "compact"`. The default is `full`, which preserves the existing response fields. Search results and conflict checks already return focused results and have no view option.
 
-Compact section results omit repeated `course_code` and `term` fields from each section, and omit numeric `start_minutes` and `end_minutes` from meetings. They retain readable times, date ranges, section IDs, seat/waitlist observations, status, instructors and locations when published, component bundles, linkage, warnings, and source provenance. Each section adds `complete`, which is false when timed meetings or complete date bounds are missing. Compact section objects cannot be passed directly to `check_conflicts`; pass their IDs, or request full section objects.
+Compact section results omit course descriptions, repeated `course_code` and `term` fields from each section, and omit numeric `start_minutes` and `end_minutes` from meetings. They retain faculty, credits, campus, delivery mode, section notes, readable times, date ranges, section IDs, seat/waitlist observations, status, instructors and locations when published, component bundles, linkage, warnings, and source provenance. Each section adds `complete`, which is false when timed meetings or complete date bounds are missing. Compact section objects cannot be passed directly to `check_conflicts`; pass their IDs, or request full section objects.
 
 Compact schedule results omit each schedule's `meetings` and detailed `attendance`. They retain section IDs, summary metrics, ranking scores and provenance, completeness, warnings, and every request-level field, including search coverage, verified and provisional counts, analysis dates, and source timestamps. Request the full view to inspect dated attendance exceptions. Compact responses reduce output size, not upstream requests or schedule calculations.
 
@@ -106,6 +106,26 @@ An actual Winter 2027 lecture section has this shape:
 ```
 
 Instructor and location are omitted when absent. Meeting date ranges are inclusive local calendar dates; clock times are McGill's local times in Montreal. IDs include the term and upstream section key. Treat them as opaque identifiers. An empty meeting list means no timed meetings are published, not guaranteed free time.
+
+## Course and section metadata
+
+Full `get_sections` and `get_sections_batch` responses include the published course `description` and `faculty`. Both views retain `faculty`, `credits`, and `credits_max` when available. Search results include the same short course metadata and omit descriptions; request full sections for the description.
+
+Course credits are the sum of selection credits within a complete VSB choice, returned only when all published alternatives agree. They are not the sum of all offered sections. `credits_max` is the published upper bound when complete alternatives agree and the bound is consistent with `credits`. These fields describe the selected term's offering, not degree applicability.
+
+Each section can include:
+
+| Field                    | Meaning                                                                                                                                                  |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `credits`, `credits_max` | Published component credit amount and upper bound. Zero-credit tutorials or labs retain `0`.                                                             |
+| `campus`                 | VSB campus identifier, such as `DOWNTOWN` or `MACDONALD`; not a classroom location.                                                                      |
+| `delivery`               | `on_campus`, `online`, `off_campus`, `mixed`, or `unknown`, derived from VSB's delivery flags.                                                           |
+| `delivery_code`          | Original delivery flags, retained for provenance. `c` is on-campus, `o` and `l` are online, and `f` is off-campus. Unrecognized codes produce `unknown`. |
+| `notes`                  | Published section instructions as plain text, also retained in the existing warnings.                                                                    |
+
+Descriptions and notes have HTML tags removed and whitespace normalized. Empty metadata is omitted. Invalid credit values are omitted without preventing timetable retrieval. Missing delivery codes are omitted; they do not imply an on-campus class. Credits, campuses, delivery, and notes remain in compact section responses.
+
+Do not sum credits across every returned section: those include alternative lectures and tutorials. Use course credits, or the credits of the chosen complete bundle. Campus and delivery fields provide context; they do not introduce campus filtering or travel-time calculations. The tools do not infer prerequisites, degree requirements, or registration eligibility from descriptions or notes.
 
 ## Seat and waitlist observations
 

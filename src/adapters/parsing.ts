@@ -85,10 +85,16 @@ const block = z.object({
   timeblockids: z.string(),
   loos: z.string().optional(),
   n: z.string().optional(),
+  credits: z.string().optional(),
+  creditsMax: z.string().optional(),
+  campus: z.string().optional(),
+  ot: z.string().optional(),
 });
 const selection = z.object({
   block: z.array(block).min(1),
   cmkey: z.string().optional(),
+  credits: z.string().optional(),
+  creditsMax: z.string().optional(),
 });
 const uselection = z.object({
   bs: z
@@ -102,9 +108,12 @@ const course = z.object({
   key: z.string(),
   code: z.string(),
   number: z.string(),
+  faculty: z.string().optional(),
   linkCourse: z.array(z.unknown()).default([]),
   uselection: z.array(uselection).default([]),
-  offering: z.array(z.object({ title: z.string().min(1) })).min(1),
+  offering: z
+    .array(z.object({ title: z.string().min(1), desc: z.string().optional() }))
+    .min(1),
 });
 const response = z.object({
   addcourse: z.object({
@@ -150,6 +159,23 @@ const components: Record<string, string> = {
 };
 function optionalText(value: string | undefined): string | undefined {
   return value?.trim() || undefined;
+}
+function plainText(value: string | undefined): string | undefined {
+  return optionalText(value?.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' '));
+}
+function credits(value: string | undefined): number | undefined {
+  if (!value || !/^\d+(?:\.\d+)?$/.test(value)) return undefined;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed <= Number.MAX_SAFE_INTEGER
+    ? parsed
+    : undefined;
+}
+function delivery(code: string): NonNullable<Section['delivery']> {
+  // VSB labels c as on-campus, o/l as online, and f as off-campus.
+  if (!/^[colf]+$/.test(code)) return 'unknown';
+  const modes = [code.includes('c'), /[ol]/.test(code), code.includes('f')];
+  if (modes.filter(Boolean).length > 1) return 'mixed';
+  return modes[0] ? 'on_campus' : modes[1] ? 'online' : 'off_campus';
 }
 function locations(input: string | undefined): Record<string, string> {
   if (!input) return {};
@@ -292,6 +318,11 @@ export function parseSections(
         const instructor = optionalText(b.teacher);
         const crn = optionalText(b.key);
         const status = optionalText(b.status);
+        const sectionCredits = credits(b.credits);
+        const sectionCreditsMax = credits(b.creditsMax);
+        const campus = optionalText(b.campus);
+        const deliveryCode = optionalText(b.ot);
+        const notes = plainText(b.n);
         const s: Section = {
           id,
           courseCode: requestedCode,
@@ -304,6 +335,16 @@ export function parseSections(
           ...(crn ? { crn } : {}),
           ...(instructor ? { instructor } : {}),
           ...(status ? { status } : {}),
+          ...(sectionCredits !== undefined ? { credits: sectionCredits } : {}),
+          ...(sectionCreditsMax !== undefined &&
+          (sectionCredits === undefined || sectionCreditsMax >= sectionCredits)
+            ? { creditsMax: sectionCreditsMax }
+            : {}),
+          ...(campus ? { campus } : {}),
+          ...(deliveryCode
+            ? { delivery: delivery(deliveryCode), deliveryCode }
+            : {}),
+          ...(notes ? { notes } : {}),
         };
         if (!status)
           warnings.add(
@@ -313,13 +354,7 @@ export function parseSections(
           warnings.add(
             `Section ${id} has no published timed meetings; its time conflicts cannot be ruled out.`,
           );
-        if (b.n)
-          warnings.add(
-            `Section ${id} note: ${b.n
-              .replace(/<[^>]*>/g, ' ')
-              .replace(/\s+/g, ' ')
-              .trim()}`,
-          );
+        if (notes) warnings.add(`Section ${id} note: ${notes}`);
         const previous = sections.get(id);
         if (previous && JSON.stringify(previous) !== JSON.stringify(s))
           throw new AppError(
@@ -386,6 +421,36 @@ export function parseSections(
       }
     }
   }
+  const description = plainText(
+    [
+      ...new Set(
+        c.offering.map((o) => plainText(o.desc)).filter((d) => d !== undefined),
+      ),
+    ].join('\n\n'),
+  );
+  const faculty = optionalText(c.faculty);
+  // Selection credits describe each required part of a complete source choice.
+  // Compare complete alternatives rather than summing all offered sections.
+  const totals = c.uselection.map((u) => {
+    const values = u.selection.map((s) => credits(s.credits));
+    return values.every((v) => v !== undefined)
+      ? values.reduce((sum, v) => sum + v, 0)
+      : undefined;
+  });
+  const maxima = c.uselection.map((u) => {
+    const values = u.selection.map((s) => credits(s.creditsMax ?? s.credits));
+    return values.every((v) => v !== undefined)
+      ? values.reduce((sum, v) => sum + v, 0)
+      : undefined;
+  });
+  const courseCredits =
+    totals.length && totals.every((v) => v !== undefined && v === totals[0])
+      ? totals[0]
+      : undefined;
+  const courseCreditsMax =
+    maxima.length && maxima.every((v) => v !== undefined && v === maxima[0])
+      ? maxima[0]
+      : undefined;
   return {
     course: {
       code: requestedCode,
@@ -394,6 +459,14 @@ export function parseSections(
         .filter((x, i, a) => a.indexOf(x) === i)
         .join(' / '),
       term: term.label,
+      ...(description ? { description } : {}),
+      ...(faculty ? { faculty } : {}),
+      ...(courseCredits !== undefined ? { credits: courseCredits } : {}),
+      ...(courseCreditsMax !== undefined &&
+      courseCredits !== undefined &&
+      courseCreditsMax >= courseCredits
+        ? { creditsMax: courseCreditsMax }
+        : {}),
     },
     term: term.label,
     sections: [...sections.values()].sort((a, b) => a.id.localeCompare(b.id)),

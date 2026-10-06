@@ -79,6 +79,33 @@ try {
     courses: keyword.courses,
   });
   const ecse = await call('get_sections', { course_code: 'ECSE 206', term });
+  const metadata = z
+    .object({
+      description: z.string().min(1),
+      faculty: z.string().min(1),
+      credits: z.number().nonnegative(),
+    })
+    .parse(ecse.course);
+  assert.equal(metadata.credits, 3);
+  const enrichedSections = z
+    .array(
+      z.object({
+        credits: z.number().nonnegative(),
+        campus: z.string().min(1),
+        delivery: z.string(),
+        delivery_code: z.string(),
+      }),
+    )
+    .parse(ecse.sections);
+  assert(enrichedSections.some((s) => s.credits === 0));
+  observations.push({
+    tool: 'get_sections',
+    purpose: 'course metadata',
+    faculty: metadata.faculty,
+    credits: metadata.credits,
+    description_characters: metadata.description.length,
+    sections: enrichedSections,
+  });
   const batch = await call('get_sections_batch', {
     course_codes: ['ECSE 206', 'MATH 263', 'ECSE 999'],
     term,
@@ -102,6 +129,13 @@ try {
   assert.deepEqual(batchResults[0]!.data, compact);
   assert(JSON.stringify(compact).length < JSON.stringify(ecse).length);
   assert.deepEqual(compact.source, ecse.source);
+  assert(
+    !('description' in z.record(z.string(), z.unknown()).parse(compact.course)),
+  );
+  assert.equal(
+    z.record(z.string(), z.unknown()).parse(compact.course).credits,
+    metadata.credits,
+  );
   observations.push({
     tool: 'get_sections_batch',
     successful: batch.successful,

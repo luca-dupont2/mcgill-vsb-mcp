@@ -1,18 +1,22 @@
 import { z } from 'zod';
-import { presentCourseSections, presentSection } from '../models.js';
+import {
+  presentCourse,
+  presentCourseSections,
+  presentSection,
+} from '../models.js';
 import type { CourseSections } from '../models.js';
 
 export const responseView = z
   .enum(['full', 'compact'])
   .default('full')
   .describe(
-    'full preserves all result fields. compact omits repeated section identifiers and numeric times, or detailed schedule meetings and attendance. Source, warnings, and completeness remain.',
+    'full preserves all result fields. compact omits course descriptions, repeated section identifiers and numeric times, or detailed schedule meetings and attendance. Source, warnings, and completeness remain.',
   );
 
 export function presentSectionsView(course: CourseSections, view = 'full') {
   if (view === 'full') return presentCourseSections(course);
   return {
-    course: course.course,
+    course: presentCourse(course.course, true),
     term: course.term,
     view: 'compact',
     sections: course.sections.map((section) => {

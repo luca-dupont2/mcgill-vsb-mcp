@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { McGillData } from '../adapters/mcgill.js';
-import { normalizeTerm } from '../models.js';
+import { normalizeTerm, presentCourse } from '../models.js';
 import { termInput } from './schemas.js';
 export const searchSchema = z
   .object({
@@ -22,7 +22,7 @@ export async function searchCourses(
   );
   return {
     term: normalizeTerm(input.term).label,
-    courses: result.courses,
+    courses: result.courses.map((course) => presentCourse(course, true)),
     page: input.page,
     has_more: result.hasMore,
     source: 'McGill VSB',

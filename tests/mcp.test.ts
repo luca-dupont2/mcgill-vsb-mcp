@@ -76,6 +76,50 @@ describe('MCP SDK client/server integration', () => {
       source: { name: 'McGill VSB' },
     });
   });
+  it('returns course metadata through search and full/compact batch lookups', async () => {
+    const search = await call('search_courses', {
+      query: 'ECSE 206',
+      term: '2027 Winter',
+    });
+    const found = (search.courses as Record<string, unknown>[])[0]!;
+    expect(found).toMatchObject({
+      faculty: 'Faculty of Engineering',
+      credits: 3,
+      credits_max: 3,
+    });
+    expect(found).not.toHaveProperty('description');
+    const full = await call('get_sections', {
+      course_code: 'ECSE 206',
+      term: '2027 Winter',
+    });
+    expect(full.course).toHaveProperty('description');
+    for (const view of ['full', 'compact']) {
+      const batch = await call('get_sections_batch', {
+        course_codes: ['ECSE 206', 'PHIL 237'],
+        term: '2027 Winter',
+        view,
+      });
+      const results = batch.results as {
+        data: {
+          course: Record<string, unknown>;
+          sections: Record<string, unknown>[];
+        };
+      }[];
+      expect(results[0]!.data.course).toMatchObject({
+        credits: 3,
+        faculty: 'Faculty of Engineering',
+      });
+      expect(results[0]!.data.sections[1]).toMatchObject({
+        credits: 0,
+        campus: 'DOWNTOWN',
+        delivery: 'on_campus',
+      });
+      expect(results[1]!.data.sections[0]!.notes).toBe(
+        'Plus Conference Waitlist section-use Quick Add',
+      );
+      expect('description' in results[0]!.data.course).toBe(view === 'full');
+    }
+  });
   it('exposes seat observations in both views and forwards refresh through single and batch calls', async () => {
     const spy = vi.spyOn(data, 'getSections');
     const full = await call('get_sections', {
